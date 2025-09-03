@@ -1,0 +1,176 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/schemas/circuit/v1.0.0/schema.json",
+  "title": "Quantum Circuit (v1.0.0)",
+  "description": "A portable representation of a quantum circuit including gates, measurements, and barriers.",
+  "type": "object",
+  "required": [
+    "format",
+    "version",
+    "num_qubits",
+    "operations"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "format": {
+      "type": "string",
+      "const": "squema-circuit",
+      "description": "Identifier for this document type. Always 'squema-circuit'."
+    },
+    "version": {
+      "type": "string",
+      "const": "1.0.0",
+      "description": "Schema version for this circuit document."
+    },
+    "num_qubits": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Total number of qubits the circuit operates on. Qubit indices are 0-based."
+    },
+    "operations": {
+      "type": "array",
+      "minItems": 0,
+      "items": {
+        "$ref": "#/$defs/operation"
+      },
+      "description": "Sequential list of operations that make up the circuit."
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Optional arbitrary metadata about the circuit (creator, provenance, etc.).",
+      "additionalProperties": true
+    }
+  },
+  "$defs": {
+    "qubitIndex": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Index of a qubit (0-based). Should be < num_qubits (cross-field validated externally)."
+    },
+    "classicalBitIndex": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Index of a classical bit (0-based)."
+    },
+    "parameter": {
+      "type": "number",
+      "description": "Real-valued parameter (e.g., rotation angle in radians)."
+    },
+    "gateName": {
+      "type": "string",
+      "description": "Gate identifier. Prefer common names; custom names allowed.",
+      "enum": [
+        "id", "x", "y", "z", "h", "s", "sdg", "t", "tdg",
+        "rx", "ry", "rz", "u", "u3", "sx", "sxdg",
+        "cx", "cy", "cz", "ch", "swap", "cswap", "ccx",
+        "phase", "rxx", "ryy", "rzz", "rzx", "iswap", "ecr",
+        "measure", "reset", "barrier"
+      ]
+    },
+    "condition": {
+      "type": "object",
+      "description": "Optional classical condition controlling the operation (bit == value).",
+      "additionalProperties": false,
+      "required": ["bit", "equals"],
+      "properties": {
+        "bit": { "$ref": "#/$defs/classicalBitIndex" },
+        "equals": { "type": "integer", "enum": [0, 1] }
+      }
+    },
+    "gateOp": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "name", "targets"],
+      "properties": {
+        "type": { "type": "string", "const": "gate" },
+        "name": { "$ref": "#/$defs/gateName" },
+        "targets": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/qubitIndex" },
+          "minItems": 1,
+          "uniqueItems": true,
+          "description": "Target qubits for the gate. Include control qubits in 'controls' not here."
+        },
+        "controls": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/qubitIndex" },
+          "minItems": 0,
+          "uniqueItems": true,
+          "description": "Optional control qubits for controlled gates."
+        },
+        "params": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/parameter" },
+          "minItems": 0,
+          "description": "Optional gate parameters (e.g., angles). The arity depends on 'name'."
+        },
+        "condition": { "$ref": "#/$defs/condition" },
+        "metadata": { "type": "object", "additionalProperties": true }
+      }
+    },
+    "measureOp": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "targets", "to_bits"],
+      "properties": {
+        "type": { "type": "string", "const": "measure" },
+        "targets": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/qubitIndex" },
+          "minItems": 1,
+          "uniqueItems": true,
+          "description": "Qubits to measure."
+        },
+        "to_bits": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/classicalBitIndex" },
+          "minItems": 1,
+          "description": "Classical bits to store the outcomes. Intended to be same length as 'targets'."
+        },
+        "metadata": { "type": "object", "additionalProperties": true }
+      }
+    },
+    "resetOp": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "targets"],
+      "properties": {
+        "type": { "type": "string", "const": "reset" },
+        "targets": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/qubitIndex" },
+          "minItems": 1,
+          "uniqueItems": true,
+          "description": "Qubits to reset."
+        },
+        "to": { "type": "integer", "enum": [0, 1], "default": 0 },
+        "metadata": { "type": "object", "additionalProperties": true }
+      }
+    },
+    "barrierOp": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "targets"],
+      "properties": {
+        "type": { "type": "string", "const": "barrier" },
+        "targets": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/qubitIndex" },
+          "minItems": 1,
+          "uniqueItems": true,
+          "description": "Qubits that the barrier applies to."
+        },
+        "metadata": { "type": "object", "additionalProperties": true }
+      }
+    },
+    "operation": {
+      "oneOf": [
+        { "$ref": "#/$defs/gateOp" },
+        { "$ref": "#/$defs/measureOp" },
+        { "$ref": "#/$defs/resetOp" },
+        { "$ref": "#/$defs/barrierOp" }
+      ],
+      "description": "Any supported circuit operation."
+    }
+  }
+}

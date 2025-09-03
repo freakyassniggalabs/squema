@@ -1,0 +1,15 @@
+{
+  "format": "squema-circuit",
+  "version": "1.0.0",
+  "num_qubits": 3,
+  "operations": [
+    { "type": "gate", "name": "h", "targets": [0] },
+    { "type": "gate", "name": "phase", "targets": [1], "controls": [0], "params": [1.5707963267948966] },
+    { "type": "gate", "name": "phase", "targets": [2], "controls": [0], "params": [0.7853981633974483] },
+    { "type": "gate", "name": "h", "targets": [1] },
+    { "type": "gate", "name": "phase", "targets": [2], "controls": [1], "params": [1.5707963267948966] },
+    { "type": "gate", "name": "h", "targets": [2] }
+  ]
+}
+
+

@@ -1,0 +1,11 @@
+{
+  "format": "squema-circuit",
+  "version": "1.0.0",
+  "num_qubits": 1,
+  "operations": [
+    { "type": "reset", "targets": [0], "to": 0 },
+    { "type": "gate", "name": "h", "targets": [0] }
+  ]
+}
+
+

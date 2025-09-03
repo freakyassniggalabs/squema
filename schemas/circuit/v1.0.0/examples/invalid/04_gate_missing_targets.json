@@ -1,0 +1,10 @@
+{
+  "format": "squema-circuit",
+  "version": "1.0.0",
+  "num_qubits": 2,
+  "operations": [
+    { "type": "gate", "name": "x" }
+  ]
+}
+
+

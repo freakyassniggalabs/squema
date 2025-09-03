@@ -1,0 +1,12 @@
+{
+  "format": "squema-circuit",
+  "version": "1.0.0",
+  "num_qubits": 2,
+  "operations": [
+    { "type": "gate", "name": "h", "targets": [0] },
+    { "type": "barrier", "targets": [0, 1] },
+    { "type": "gate", "name": "x", "targets": [1] }
+  ]
+}
+
+
